@@ -69,22 +69,33 @@ class SupabaseService
 
     public function uploadFile($file)
     {
-        $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-        $path = "uploads/{$filename}";
-        $fileContent = file_get_contents($file->getRealPath());
+        try {
+            $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = "uploads/{$filename}";
+            $fileContent = file_get_contents($file->getRealPath());
 
-        $response = Http::withHeaders([
-            'apikey' => $this->key,
-            'Authorization' => 'Bearer ' . $this->key,
-            'Content-Type' => $file->getClientMimeType(),
-        ])->put("{$this->storageUrl}/{$this->bucket}/{$path}", $fileContent);
+            $response = Http::withHeaders([
+                'apikey' => $this->key,
+                'Authorization' => 'Bearer ' . $this->key,
+                'Content-Type' => $file->getClientMimeType(),
+            ])->withBody($fileContent, $file->getClientMimeType())
+            ->put("{$this->storageUrl}/{$this->bucket}/{$path}");
 
-        if (!$response->successful()) {
-            throw new \Exception('Gagal mengupload file ke Supabase: ' . $response->body());
+            if (!$response->successful()) {
+                Log::error('Upload file ke Supabase gagal: ' . $response->body());
+                return false;
+            }
+
+            return "{$this->url}/storage/v1/object/public/{$this->bucket}/{$path}";
+        } catch (\Exception $e) {
+            Log::error('Exception saat upload file ke Supabase: ' . $e->getMessage());
+            return false;
         }
-
-        return "{$this->url}/storage/v1/object/public/{$this->bucket}/{$path}";
     }
+
+
+
+
 
     public function deleteFile($filePath)
     {
@@ -99,14 +110,16 @@ class SupabaseService
     public function saveSuratMasuk(array $data)
     {
         try {
+            // Tambahkan di sini
+            if (isset($data['file_scan_url'])) {
+                $data['file_scan'] = $data['file_scan_url'];
+                unset($data['file_scan_url']);
+            }
             Log::error('Data mentah sebelum encoding: ' . json_encode($data, JSON_UNESCAPED_UNICODE));
 
             // Bersihkan encoding data agar valid UTF-8
-            $encodedData = array_map(function ($value) {
-                return $this->cleanUtf8String($value);
-            }, $data);
+            $encodedData = $this->cleanUtf8Recursive($data);
 
-            // Cek json_encode secara manual untuk mendeteksi error encoding
             $jsonTest = json_encode($encodedData, JSON_UNESCAPED_UNICODE);
             if ($jsonTest === false) {
                 $jsonError = json_last_error_msg();
@@ -128,6 +141,18 @@ class SupabaseService
             return false;
         }
     }
+
+    private function cleanUtf8Recursive($data)
+    {
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                $data[$key] = $this->cleanUtf8Recursive($value);
+            }
+            return $data;
+        }
+        return $this->cleanUtf8String($data);
+    }
+
 
 
     public function getSuratMasukById($id)
@@ -190,4 +215,47 @@ class SupabaseService
             return false;
         }
     }
+
+
+    public function saveSuratKeluar(array $data)
+    {
+        try {
+            Log::info('[SupabaseService] Data yang dikirim ke Supabase:', $data);
+
+            // Bersihkan UTF-8 jika perlu
+            $encodedData = $this->cleanUtf8Recursive($data);
+
+            // Cek validitas JSON
+            $jsonTest = json_encode($encodedData, JSON_UNESCAPED_UNICODE);
+            if ($jsonTest === false) {
+                $jsonError = json_last_error_msg();
+                Log::error("json_encode gagal: " . $jsonError);
+                throw new \Exception("json_encode gagal: " . $jsonError);
+            }
+
+            $response = $this->client->post('/rest/v1/surat_keluar', [
+                'json' => $encodedData,
+                'headers' => [
+                    'Prefer' => 'return=representation',
+                ],
+            ]);
+
+            Log::info('[SupabaseService] Response status:', [$response->getStatusCode()]);
+            Log::info('[SupabaseService] Response body:', [$response->getBody()->getContents()]);
+
+            $result = json_decode($response->getBody(), true);
+            return $result && count($result) > 0 ? $result[0] : false;
+        } catch (\Exception $e) {
+            Log::error('[SupabaseService] Exception saat menyimpan data surat keluar:', [
+                'error' => $e->getMessage(),
+            ]);
+            return false;
+        }
+    }
+
+
+
+
+
+
 }

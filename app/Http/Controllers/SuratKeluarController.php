@@ -6,6 +6,7 @@ use App\Models\SuratKeluar;
 use App\Services\SupabaseService;
 use Illuminate\Http\Request;
 use App\Services\SupabaseStorageService;
+use Illuminate\Support\Facades\Log;
 
 class SuratKeluarController extends Controller
 {
@@ -41,27 +42,28 @@ class SuratKeluarController extends Controller
             'keperluan' => 'required',
             'hasil_pelayanan' => 'required',
             'kode_arsip' => 'required',
-            'keterangan' => 'nullable',
-            'file_scan' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
+            'keterangan' => 'nullable'
         ]);
 
-        if ($request->hasFile('file_scan')) {
-            $file = $request->file('file_scan');
-            $fileName = time() . '_' . $file->getClientOriginalName();
+        Log::info('[SuratKeluarController] Validated input:', $validated);
 
-            $uploadResult = $this->supabase->uploadFile($file->getPathname(), $fileName);
+        // Simpan ke Supabase
+        $result = $this->supabase->saveSuratKeluar($validated);
 
-            if ($uploadResult === false) {
-                return back()->withErrors(['file_scan' => 'Gagal upload file ke Supabase Storage']);
-            }
-
-            $validated['file_scan'] = $fileName;
+        if (!$result) {
+            Log::error('[SuratKeluarController] Gagal menyimpan ke Supabase');
+            return back()->withErrors(['general' => 'Gagal menyimpan data ke Supabase']);
         }
 
+        Log::info('[SuratKeluarController] Data berhasil disimpan ke Supabase:', $result);
+
+        // Simpan juga ke DB lokal
         SuratKeluar::create($validated);
 
         return redirect()->route('surat-keluar.index')->with('success', 'Data berhasil disimpan');
     }
+
+
 
     // Tampilkan form edit surat keluar
     public function edit(SuratKeluar $suratKeluar)
@@ -82,25 +84,24 @@ class SuratKeluarController extends Controller
             'hasil_pelayanan' => 'required',
             'kode_arsip' => 'required',
             'keterangan' => 'nullable',
-            'file_scan' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
         ]);
 
-        if ($request->hasFile('file_scan')) {
-            if ($suratKeluar->file_scan) {
-                $this->supabase->deleteFile($suratKeluar->file_scan);
-            }
+        // if ($request->hasFile('file_scan')) {
+        //     if ($suratKeluar->file_scan) {
+        //         $this->supabase->deleteFile($suratKeluar->file_scan);
+        //     }
 
-            $file = $request->file('file_scan');
-            $fileName = time() . '_' . $file->getClientOriginalName();
+        //     $file = $request->file('file_scan');
+        //     $fileName = time() . '_' . $file->getClientOriginalName();
 
-            $uploadResult = $this->supabase->uploadFile($file->getPathname(), $fileName);
+        //     $uploadResult = $this->supabase->uploadFile($file->getPathname(), $fileName);
 
-            if ($uploadResult === false) {
-                return back()->withErrors(['file_scan' => 'Gagal upload file ke Supabase Storage']);
-            }
+        //     if ($uploadResult === false) {
+        //         return back()->withErrors(['file_scan' => 'Gagal upload file ke Supabase Storage']);
+        //     }
 
-            $validated['file_scan'] = $fileName;
-        }
+        //     $validated['file_scan'] = $fileName;
+        // }
 
         $suratKeluar->update($validated);
 

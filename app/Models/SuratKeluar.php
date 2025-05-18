@@ -14,7 +14,7 @@ class SuratKeluar extends Model
     protected $fillable = [
         'no_agenda',
         'tanggal_keluar',
-        'nama_lengkap',
+        'nama_lengkap_pemohon',
         'nik',
         'alamat',
         'keperluan',

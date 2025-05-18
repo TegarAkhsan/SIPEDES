@@ -35,30 +35,41 @@ class SuratMasukController extends Controller
             'tanggal_terima' => 'required|date',
             'pengirim' => 'required|string|max:255',
             'perihal' => 'required|string|max:255',
-            'file_scan' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // max 5MB
+            'file_scan' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
         try {
             Log::info('Mulai proses simpan surat masuk');
 
-            // Upload file ke Supabase Storage
             $fileScanUrl = $this->supabase->uploadFile($request->file('file_scan'));
+            if (!$fileScanUrl) {
+                throw new \Exception('Gagal mengupload file scan ke Supabase.');
+            }
             Log::info('Hasil upload file:', ['url' => $fileScanUrl]);
 
-            // Data untuk disimpan ke Supabase
+            // Fungsi bersihkan input text
+            $clean = function ($v) {
+                if (!is_string($v)) return $v;
+                $v = mb_convert_encoding($v, 'UTF-8', 'UTF-8');
+                return preg_replace('/[\x00-\x1F\x7F]/u', '', $v);
+            };
+
             $data = [
-                'no_agenda' => $request->input('no_agenda'),
-                'no_surat' => $request->input('no_surat'),
+                'no_agenda' => $clean($request->input('no_agenda')),
+                'no_surat' => $clean($request->input('no_surat')),
                 'tanggal_surat' => $request->input('tanggal_surat'),
                 'tanggal_terima' => $request->input('tanggal_terima'),
-                'pengirim' => $request->input('pengirim'),
-                'perihal' => $request->input('perihal'),
+                'pengirim' => $clean($request->input('pengirim')),
+                'perihal' => $clean($request->input('perihal')),
                 'file_scan_url' => $fileScanUrl,
             ];
 
-            Log::info('Data yang akan dikirim ke Supabase:', $data);
+            $jsonTest = json_encode($data);
+            if ($jsonTest === false) {
+                Log::error('json_encode error: ' . json_last_error_msg());
+                return back()->withErrors(['msg' => 'Data mengandung karakter tidak valid UTF-8'])->withInput();
+            }
 
-            // Simpan ke database Supabase
             $insertResult = $this->supabase->saveSuratMasuk($data);
             Log::info('Hasil penyimpanan ke Supabase:', ['result' => $insertResult]);
 
@@ -71,67 +82,9 @@ class SuratMasukController extends Controller
             Log::error('Gagal menyimpan surat masuk:', ['error' => $e->getMessage()]);
             return back()->withErrors(['msg' => 'Error: ' . $e->getMessage()])->withInput();
         }
+
     }
 
-    public function edit($id)
-    {
-        $suratMasuk = $this->supabase->getSuratMasukById($id);
-        return view('surat-masuk.edit', compact('suratMasuk'));
-    }
-
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'no_agenda' => 'required|string|max:255',
-            'no_surat' => 'required|string|max:255',
-            'tanggal_surat' => 'required|date',
-            'tanggal_terima' => 'required|date',
-            'pengirim' => 'required|string|max:255',
-            'perihal' => 'required|string|max:255',
-            'file_scan' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-        ]);
-
-        try {
-            $surat = $this->supabase->getSuratMasukById($id);
-
-            if (!$surat) {
-                return back()->withErrors(['msg' => 'Data surat masuk tidak ditemukan'])->withInput();
-            }
-
-            $fileScanUrl = $surat['file_scan_url'] ?? null;
-
-            // Jika ada file baru, upload dan update url
-            if ($request->hasFile('file_scan')) {
-                // Hapus file lama di storage
-                if ($fileScanUrl) {
-                    $fileNameToDelete = $this->extractFileNameFromUrl($fileScanUrl);
-                    $this->supabase->deleteFile($fileNameToDelete);
-                }
-
-                $fileScanUrl = $this->supabase->uploadFile($request->file('file_scan'));
-            }
-
-            $data = [
-                'no_agenda' => $request->input('no_agenda'),
-                'no_surat' => $request->input('no_surat'),
-                'tanggal_surat' => $request->input('tanggal_surat'),
-                'tanggal_terima' => $request->input('tanggal_terima'),
-                'pengirim' => $request->input('pengirim'),
-                'perihal' => $request->input('perihal'),
-                'file_scan_url' => $fileScanUrl,
-            ];
-
-            $updateResult = $this->supabase->updateSuratMasuk($id, $data);
-
-            if (!$updateResult) {
-                return back()->withErrors(['msg' => 'Gagal memperbarui data surat masuk'])->withInput();
-            }
-
-            return redirect()->route('surat-masuk.index')->with('success', 'Surat masuk berhasil diperbarui!');
-        } catch (\Exception $e) {
-            return back()->withErrors(['msg' => 'Error: ' . $e->getMessage()])->withInput();
-        }
-    }
 
     public function destroy($id)
     {

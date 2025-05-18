@@ -6,24 +6,32 @@ use App\Http\Controllers\SuratMasukController;
 use App\Http\Controllers\SuratKeluarController;
 use App\Http\Controllers\ArsipController;
 use App\Http\Controllers\PendudukController;
-// use App\Http\Controllers\FilesController;
 
-// Beranda
+// Beranda dan Tentang (Tanpa Login)
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
-// Surat Masuk dan Surat Keluar resource route (otomatis mencakup index, create, store, dll)
-Route::get('/surat-masuk', [SuratMasukController::class, 'index'])->name('surat-masuk.index');
-Route::post('/surat-masuk', [SuratMasukController::class, 'store'])->name('surat-masuk.store');
-Route::resource('surat-keluar', SuratKeluarController::class);
-
-// Arsip (hanya index)
-Route::get('/arsip', [ArsipController::class, 'index'])->name('arsip.index');
-
-// Data Penduduk (hanya index)
-Route::get('penduduk', [PendudukController::class, 'index'])->name('penduduk.index');
-
-// Halaman tentang desa
 Route::view('tentang', 'tentang')->name('tentang');
+
+// Semua route yang butuh login
+Route::middleware(['auth'])->group(function () {
+    
+    // Surat Masuk (index dan store)
+    Route::get('/surat-masuk', [SuratMasukController::class, 'index'])->name('surat-masuk.index');
+    Route::post('/surat-masuk', [SuratMasukController::class, 'store'])->name('surat-masuk.store');
+
+    // Surat Keluar (full resource route: index, create, store, etc.)
+    Route::resource('surat-keluar', SuratKeluarController::class);
+
+    // Arsip (index)
+    Route::get('/arsip', [ArsipController::class, 'index'])->name('arsip.index');
+
+    // Penduduk (index)
+    Route::get('/penduduk', [PendudukController::class, 'index'])->name('penduduk.index');
+});
+
+// Tentang Desa Setro
+Route::get('/tentang-desa-setro', function () {
+    return view('tentang-desa-setro');
+})->name('tentang-desa-setro');
 
 // Route::get('files', [FilesController::class, 'index']);
 
@@ -41,4 +49,4 @@ Route::view('tentang', 'tentang')->name('tentang');
 //     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 // });
 
-// require __DIR__.'/auth.php';
+require __DIR__.'/auth.php';

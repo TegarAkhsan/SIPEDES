@@ -10,11 +10,14 @@ return new class extends Migration {
         Schema::create('surat_keluar', function (Blueprint $table) {
             $table->id();
             $table->string('no_agenda');
-            $table->string('no_surat');
-            $table->date('tanggal_surat');
-            $table->string('tujuan');
-            $table->string('perihal');
-            $table->string('file_scan')->nullable(); // bisa untuk upload PDF/dokumen
+            $table->date('tanggal_keluar');
+            $table->string('nama_lengkap_pemohon');
+            $table->string('nik');
+            $table->text('alamat');
+            $table->string('keperluan');
+            $table->string('hasil_pelayanan');
+            $table->string('kode_arsip');
+            $table->text('keterangan')->nullable();
             $table->timestamps();
         });
     }
