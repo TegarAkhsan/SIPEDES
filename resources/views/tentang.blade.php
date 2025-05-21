@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tentang Desa Setro')
+@section('title', 'Tentang Desa Setro-SIPEDES')
 
 @section('content')
 <section class="max-w-5xl mx-auto px-6 py-12 bg-white rounded-xl shadow-lg mt-10 mb-10">

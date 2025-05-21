@@ -30,11 +30,10 @@ class SuratMasukController extends Controller
     {
         $request->validate([
             'no_agenda' => 'required|string|max:255',
-            'no_surat' => 'required|string|max:255',
+            'kode_perihal' => 'required|string', // format: kode|perihal
             'tanggal_surat' => 'required|date',
             'tanggal_terima' => 'required|date',
             'pengirim' => 'required|string|max:255',
-            'perihal' => 'required|string|max:255',
             'file_scan' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
@@ -54,13 +53,16 @@ class SuratMasukController extends Controller
                 return preg_replace('/[\x00-\x1F\x7F]/u', '', $v);
             };
 
+            // Ekstrak kode surat dan perihal dari input kode_perihal (format: kode|perihal)
+            list($kodeSurat, $namaPerihal) = explode('|', $request->input('kode_perihal'));
+
             $data = [
                 'no_agenda' => $clean($request->input('no_agenda')),
-                'no_surat' => $clean($request->input('no_surat')),
+                'no_surat' => $clean($kodeSurat), // disimpan sebagai no_surat
                 'tanggal_surat' => $request->input('tanggal_surat'),
                 'tanggal_terima' => $request->input('tanggal_terima'),
                 'pengirim' => $clean($request->input('pengirim')),
-                'perihal' => $clean($request->input('perihal')),
+                'perihal' => $clean($namaPerihal), // disimpan sebagai perihal
                 'file_scan_url' => $fileScanUrl,
             ];
 
@@ -82,8 +84,8 @@ class SuratMasukController extends Controller
             Log::error('Gagal menyimpan surat masuk:', ['error' => $e->getMessage()]);
             return back()->withErrors(['msg' => 'Error: ' . $e->getMessage()])->withInput();
         }
-
     }
+
 
 
     public function destroy($id)
