@@ -24,6 +24,13 @@
                 {{ session('status') }}
             </div>
         @endif
+        
+        <!-- Flash Message Error -->
+        @if (session('error'))
+            <div class="mb-4 text-sm text-red-700 bg-red-100 border border-red-300 rounded p-3">
+                {{ session('error') }}
+            </div>
+        @endif
 
         <!-- Form Login -->
         <form method="POST" action="{{ route('login') }}">

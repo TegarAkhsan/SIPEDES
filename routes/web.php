@@ -25,7 +25,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/arsip', [ArsipController::class, 'index'])->name('arsip.index');
 
     // Penduduk (index)
-    Route::get('/penduduk', [PendudukController::class, 'index'])->name('penduduk.index');
+    // Route::get('/penduduk', [PendudukController::class, 'index'])->name('penduduk.index');
+    Route::resource('penduduk', PendudukController::class);
+    Route::post('/penduduk', [PendudukController::class, 'store'])->name('penduduk.store');
+
+
 });
 
 // Tentang Desa Setro

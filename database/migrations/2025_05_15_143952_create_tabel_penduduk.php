@@ -13,6 +13,16 @@ return new class extends Migration
     {
         Schema::create('penduduk', function (Blueprint $table) {
             $table->id();
+            $table->string('nik', 16)->unique();
+            $table->string('nama');
+            $table->text('alamat');
+            $table->enum('jenis_kelamin', ['L', 'P']);
+            $table->string('tempat_lahir');
+            $table->date('tanggal_lahir');
+            $table->string('agama');
+            $table->string('status_perkawinan');
+            $table->string('pekerjaan');
+            $table->string('kewarganegaraan');
             $table->timestamps();
         });
     }

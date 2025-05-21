@@ -253,9 +253,13 @@ class SupabaseService
         }
     }
 
+    public function savePenduduk($data)
+    {
+        $response = $this->client
+            ->from('penduduk') // nama tabel di Supabase
+            ->insert([$data])
+            ->execute();
 
-
-
-
-
+        return $response['status'] === 201; // atau sesuaikan jika format respon berbeda
+    }
 }
