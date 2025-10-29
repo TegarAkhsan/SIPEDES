@@ -116,10 +116,10 @@
   </script>
 
   <!-- Footer -->
-  <footer class="bg-green-800 text-green-100 py-10 mt-12">
+  <footer class="bg-green-800 text-green-100 py-10">
   <div class="container mx-auto px-6 max-w-6xl">
     <div class="flex flex-col md:flex-row justify-between gap-10">
-      
+
       <!-- Tentang -->
       <div class="md:w-1/3">
         <h3 class="text-xl font-semibold mb-4">Tentang Desa Setro</h3>

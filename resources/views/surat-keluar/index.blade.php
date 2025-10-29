@@ -4,15 +4,15 @@
 
 @section('content')
     <!-- Hero Section -->
-    <div class="max-w-4xl mx-auto p-8 bg-white rounded-2xl shadow-md mt-10">
+    <div class="max-w-4xl mx-auto p-8 bg-white rounded-2xl shadow-md mt-10 mb-10">
     <h2 class="text-4xl font-extrabold text-green-700 mb-2 text-center drop-shadow-md">Form Surat Keluar</h2>
     <p class="text-center text-gray-600 max-w-xl mx-auto">
       Isi data surat keluar dengan lengkap dan unggah file scan surat untuk dokumentasi digital yang efisien.
     </p>
-  
+
     <form action="{{ route('surat-keluar.store') }}" method="POST" class="space-y-6">
         @csrf
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">No Agenda</label>

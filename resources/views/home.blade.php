@@ -1,79 +1,104 @@
 @extends('layouts.app')
 
-@section('title', 'Beranda-SIPEDES')
+@section('title', 'Beranda - SIPEDES')
 
 @section('content')
+<!-- Hero Section -->
+<main class="flex-grow bg-gradient-to-br from-green-50 to-green-100">
+  <div class="container mx-auto px-6 py-20 flex flex-col md:flex-row items-center gap-12 max-w-7xl">
+      <div class="absolute inset-0">
+    <img src="{{ asset('assets/images/BalaiDesa-Setro.jpeg') }}" alt="Desa Setro"
+         class="w-full h-full object-cover opacity-10">
+  </div>
 
-  <!-- Hero Section -->
-  <main class="flex-grow container mx-auto px-6 py-16 flex flex-col md:flex-row items-center gap-12 max-w-6xl">
-    <div class="md:w-1/2 text-center md:text-left">
-      <h1 class="text-5xl font-extrabold text-green-800 mb-6 leading-tight">
-        Selamat Datang di Sistem Persuratan <br /> Desa Setro
+
+    <!-- Hero Text -->
+    <div class="md:w-1/2 text-center md:text-left space-y-6 animate-fade-in">
+      <h1 class="text-5xl md:text-6xl font-extrabold text-green-800 leading-tight">
+        Selamat Datang di<br />
+        <span class="text-green-600">Sistem Persuratan Desa Setro</span>
       </h1>
-      <p class="text-gray-700 text-lg mb-6">
-        Platform modern berbasis web untuk mengelola surat masuk dan keluar di Desa Setro secara efisien dan digital. 
-        Mempermudah administrasi desa dengan teknologi terkini demi pelayanan terbaik bagi masyarakat.
+      <p class="text-gray-700 text-lg leading-relaxed">
+        Platform digital modern untuk mengelola surat masuk dan keluar di Desa Setro.
+        Sederhana, cepat, dan transparan demi pelayanan publik yang efisien dan ramah teknologi.
       </p>
-      <a href="#tentang" class="inline-block bg-green-700 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-800 transition">
+      <a href="#tentang"
+        class="inline-block bg-green-700 hover:bg-green-800 text-white px-8 py-3 rounded-full font-semibold shadow-md transition-transform transform hover:-translate-y-1 hover:shadow-lg">
         Pelajari Lebih Lanjut
       </a>
     </div>
-    <div class="md:w-1/2">
-      <img 
-        src="{{ asset('assets/images/BalaiDesa-Setro.jpeg') }}" 
-        alt="Pemandangan Desa Setro" 
-        class="rounded-3xl shadow-lg object-cover w-full max-h-[400px]" />
-    </div>
-  </main>
 
-  <!-- Tentang Desa Section -->
-  <section id="tentang" class="bg-white shadow-lg rounded-3xl container mx-auto px-6 py-12 max-w-4xl text-center">
-    <h2 class="text-3xl font-bold text-green-700 mb-6">Tentang Desa Setro</h2>
+    <!-- Hero Image -->
+    <div class="md:w-1/2 flex justify-center">
+      <div class="relative w-full max-w-md">
+        <img
+          src="{{ asset('assets/images/BalaiDesa-Setro.jpeg') }}"
+          alt="Pemandangan Desa Setro"
+          class="rounded-3xl shadow-2xl object-cover w-full max-h-[420px] transform hover:scale-105 transition duration-500" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Tentang Section -->
+<section id="tentang" class="py-16 bg-white relative">
+  <div class="container mx-auto px-6 max-w-6xl text-center">
+    <h2 class="text-4xl font-bold text-green-700 mb-6 relative inline-block">
+      Tentang Desa Setro
+      <span class="block h-1 w-20 bg-green-500 mx-auto mt-2 rounded-full"></span>
+    </h2>
+
     <p class="text-gray-700 leading-relaxed text-lg max-w-3xl mx-auto">
-      Desa Setro merupakan desa yang asri dengan penduduk yang ramah dan tradisi budaya yang kuat. 
-      Berlokasi di tengah perbukitan yang hijau, desa ini mengandalkan sektor pertanian dan pariwisata sebagai sumber utama penghidupan. 
-      Dengan dukungan teknologi melalui sistem persuratan digital ini, Desa Setro terus maju dan berkomitmen memberikan pelayanan terbaik bagi warganya.
+      Desa Setro merupakan desa yang asri dengan penduduk ramah dan tradisi budaya yang kuat.
+      Terletak di kawasan perbukitan hijau, desa ini mengandalkan sektor pertanian dan pariwisata sebagai sumber utama kehidupan.
+      Melalui sistem persuratan digital SIPEDES, Desa Setro bertransformasi menuju pelayanan publik yang efektif dan akuntabel.
     </p>
-  </section>
 
-  <!-- Artikel Section -->
-  <section id="artikel" class="container mx-auto px-6 py-12 max-w-6xl">
-    <h2 class="text-3xl font-bold text-green-700 mb-8 text-center">Artikel Terbaru</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-      <!-- Card Artikel 1 -->
-      <article class="bg-white rounded-2xl shadow-md hover:shadow-xl transition p-6 flex flex-col">
-        <img src="{{ asset('assets/images/artikel1.jpg') }}" alt="Judul Artikel 1" class="rounded-xl mb-4 object-cover h-48 w-full">
-        <h3 class="text-xl font-semibold mb-2">Meningkatkan Pelayanan Digital di Desa Setro</h3>
-        <p class="text-gray-600 flex-grow">Digitalisasi administrasi desa memudahkan masyarakat dalam pengurusan surat tanpa harus datang langsung ke kantor desa.</p>
-        <a href="#" class="mt-4 text-green-700 font-semibold hover:underline">Baca Selengkapnya &rarr;</a>
-      </article>
-
-      <!-- Card Artikel 2 -->
-      <article class="bg-white rounded-2xl shadow-md hover:shadow-xl transition p-6 flex flex-col">
-        <img src="{{ asset('assets/images/artikel2.jpg') }}" alt="Judul Artikel 2" class="rounded-xl mb-4 object-cover h-48 w-full">
-        <h3 class="text-xl font-semibold mb-2">Potensi Pertanian Desa Setro</h3>
-        <p class="text-gray-600 flex-grow">Desa Setro memiliki tanah subur dan banyak petani yang produktif, menjadikan sektor pertanian sebagai tulang punggung ekonomi.</p>
-        <a href="#" class="mt-4 text-green-700 font-semibold hover:underline">Baca Selengkapnya &rarr;</a>
-      </article>
-
-      <!-- Card Artikel 3 -->
-      <article class="bg-white rounded-2xl shadow-md hover:shadow-xl transition p-6 flex flex-col">
-        <img src="{{ asset('assets/images/artikel3.jpg') }}" alt="Judul Artikel 3" class="rounded-xl mb-4 object-cover h-48 w-full">
-        <h3 class="text-xl font-semibold mb-2">Wisata Alam Desa Setro yang Menawan</h3>
-        <p class="text-gray-600 flex-grow">Keindahan alam dan budaya lokal desa Setro menjadi daya tarik wisata yang terus berkembang pesat.</p>
-        <a href="#" class="mt-4 text-green-700 font-semibold hover:underline">Baca Selengkapnya &rarr;</a>
-      </article>
+    <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Card 1 -->
+      <div class="bg-green-50 p-8 rounded-2xl shadow hover:shadow-lg transition">
+        <h3 class="text-xl font-semibold text-green-700 mb-2">Digitalisasi Surat</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          Mengelola surat masuk dan keluar secara digital untuk efisiensi dan transparansi.
+        </p>
+      </div>
+      <!-- Card 2 -->
+      <div class="bg-green-50 p-8 rounded-2xl shadow hover:shadow-lg transition">
+        <h3 class="text-xl font-semibold text-green-700 mb-2">Pelayanan Masyarakat</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          Memberikan kemudahan akses bagi warga untuk pengajuan dan pemantauan surat.
+        </p>
+      </div>
+      <!-- Card 3 -->
+      <div class="bg-green-50 p-8 rounded-2xl shadow hover:shadow-lg transition">
+        <h3 class="text-xl font-semibold text-green-700 mb-2">Desa Maju & Transparan</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          Mendorong kemajuan tata kelola desa yang profesional dan berbasis data.
+        </p>
+      </div>
     </div>
-  </section>
+  </div>
 
-  <script>
-    // Toggle mobile menu
-    const btn = document.getElementById('menu-btn');
-    const menu = document.getElementById('menu');
+  <!-- Background Shape -->
+  <div class="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-green-100 to-transparent -z-10"></div>
+</section>
 
-    btn.addEventListener('click', () => {
-      menu.classList.toggle('hidden');
-    });
-  </script>
+<!-- Simple Fade-in Animation -->
+<style>
+  @keyframes fade-in {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in { animation: fade-in 1s ease-in-out; }
+</style>
 
+<script>
+  // Toggle mobile menu
+  const btn = document.getElementById('menu-btn');
+  const menu = document.getElementById('menu');
+  if (btn && menu) {
+    btn.addEventListener('click', () => menu.classList.toggle('hidden'));
+  }
+</script>
 @endsection

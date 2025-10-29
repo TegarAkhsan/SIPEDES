@@ -26,6 +26,7 @@ class SuratMasukController extends Controller
         $suratMasuk = $this->supabase->getAllSuratMasuk();
         return view('surat-masuk.index', compact('suratMasuk'));
     }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -38,12 +39,16 @@ class SuratMasukController extends Controller
         ]);
 
         try {
-            Log::info('Mulai proses simpan surat masuk');
+            Log::info('=== MULAI PROSES SIMPAN SURAT MASUK ===');
+            Log::info('Request data:', $request->except('file_scan'));
 
-            $fileScanUrl = $this->supabase->uploadFile($request->file('file_scan'));
+            // Upload file dengan folder 'surat-masuk'
+            $fileScanUrl = $this->supabase->uploadFile($request->file('file_scan'), 'surat-masuk');
+
             if (!$fileScanUrl) {
                 throw new \Exception('Gagal mengupload file scan ke Supabase.');
             }
+
             Log::info('Hasil upload file:', ['url' => $fileScanUrl]);
 
             // Fungsi bersihkan input text
@@ -63,8 +68,10 @@ class SuratMasukController extends Controller
                 'tanggal_terima' => $request->input('tanggal_terima'),
                 'pengirim' => $clean($request->input('pengirim')),
                 'perihal' => $clean($namaPerihal), // disimpan sebagai perihal
-                'file_scan_url' => $fileScanUrl,
+                'file_scan' => $fileScanUrl, // Ubah dari file_scan_url ke file_scan
             ];
+
+            Log::info('Data yang akan disimpan:', $data);
 
             $jsonTest = json_encode($data);
             if ($jsonTest === false) {
@@ -76,17 +83,24 @@ class SuratMasukController extends Controller
             Log::info('Hasil penyimpanan ke Supabase:', ['result' => $insertResult]);
 
             if (!$insertResult) {
+                // Jika gagal simpan, hapus file yang sudah diupload
+                $this->supabase->deleteFile($fileScanUrl);
                 return back()->withErrors(['msg' => 'Gagal menyimpan data surat masuk ke Supabase.'])->withInput();
             }
 
+            Log::info('=== SURAT MASUK BERHASIL DISIMPAN ===');
             return redirect()->route('surat-masuk.index')->with('success', 'Surat masuk berhasil disimpan!');
+
         } catch (\Exception $e) {
-            Log::error('Gagal menyimpan surat masuk:', ['error' => $e->getMessage()]);
+            Log::error('=== ERROR SAAT SIMPAN SURAT MASUK ===');
+            Log::error('Gagal menyimpan surat masuk:', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
             return back()->withErrors(['msg' => 'Error: ' . $e->getMessage()])->withInput();
         }
     }
-
-
 
     public function destroy($id)
     {
@@ -97,9 +111,11 @@ class SuratMasukController extends Controller
                 return back()->withErrors(['msg' => 'Data surat masuk tidak ditemukan']);
             }
 
-            if (!empty($suratMasuk['file_scan_url'])) {
-                $fileNameToDelete = $this->extractFileNameFromUrl($suratMasuk['file_scan_url']);
-                $this->supabase->deleteFile($fileNameToDelete);
+            // Hapus file jika ada (bisa file_scan atau file_scan_url)
+            $fileUrl = $suratMasuk['file_scan'] ?? $suratMasuk['file_scan_url'] ?? null;
+
+            if (!empty($fileUrl)) {
+                $this->supabase->deleteFile($fileUrl);
             }
 
             $deleted = $this->supabase->deleteSuratMasuk($id);
@@ -110,8 +126,8 @@ class SuratMasukController extends Controller
 
             return redirect()->route('surat-masuk.index')->with('success', 'Data berhasil dihapus');
         } catch (\Exception $e) {
+            Log::error('Error saat hapus surat masuk:', ['error' => $e->getMessage()]);
             return back()->withErrors(['msg' => 'Error: ' . $e->getMessage()]);
         }
     }
-
 }

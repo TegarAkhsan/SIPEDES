@@ -28,12 +28,18 @@ class SupabaseService
     }
 
     public function __construct()
-    {   
+    {
         // Pastikan URL Supabase dari .env benar
-        $this->url = rtrim(env('SUPABASE_URL', 'https://ospsoqynvssrrhjtccmx.supabase.co'), '/');
-        $this->key = env('SUPABASE_KEY');
-        $this->bucket = env('SUPABASE_STORAGE_BUCKET', 'public');
-        $this->storageUrl = $this->url . '/storage/v1/object';
+        $this->url = rtrim(env('SUPABASE_URL'), '/');
+        $this->key = env('SUPABASE_SERVICE_ROLE_KEY', env('SUPABASE_KEY'));
+        $this->bucket = env('SUPABASE_STORAGE_BUCKET', 'surat-masuk');
+        $this->storageUrl = $this->url . '/storage/v1';
+
+        Log::info('Supabase Config:', [
+            'url' => $this->url,
+            'bucket' => $this->bucket,
+            'storageUrl' => $this->storageUrl
+        ]);
 
         $this->client = new Client([
             'base_uri' => $this->url,
@@ -43,6 +49,7 @@ class SupabaseService
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
             ],
+            'verify' => false, // Disable SSL verification (DEVELOPMENT ONLY!)
         ]);
 
         $this->storageClient = new Client([
@@ -51,6 +58,7 @@ class SupabaseService
                 'apikey' => $this->key,
                 'Authorization' => 'Bearer ' . $this->key,
             ],
+            'verify' => false, // Disable SSL verification (DEVELOPMENT ONLY!)
         ]);
     }
 
@@ -67,55 +75,109 @@ class SupabaseService
         }
     }
 
-    public function uploadFile($file)
+    public function uploadFile($file, $folder = 'uploads')
     {
         try {
-            $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-            $path = "uploads/{$filename}";
+            // Generate unique filename
+            $filename = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
+            $path = "{$folder}/{$filename}";
+
+            Log::info('=== UPLOAD FILE DEBUG START ===');
+            Log::info('Attempting file upload:', [
+                'bucket' => $this->bucket,
+                'path' => $path,
+                'mime' => $file->getClientMimeType(),
+                'size' => $file->getSize(),
+                'original_name' => $file->getClientOriginalName()
+            ]);
+
+            // Read file content
             $fileContent = file_get_contents($file->getRealPath());
 
-            $response = Http::withHeaders([
+            if ($fileContent === false) {
+                throw new \Exception('Gagal membaca file content');
+            }
+
+            Log::info('File content loaded, size: ' . strlen($fileContent) . ' bytes');
+
+            // Upload to Supabase Storage
+            $uploadUrl = "{$this->storageUrl}/object/{$this->bucket}/{$path}";
+
+            Log::info('Upload URL:', ['url' => $uploadUrl]);
+            Log::info('Using API Key (first 20 chars):', ['key' => substr($this->key, 0, 20) . '...']);
+
+            $response = Http::withOptions([
+                'verify' => false, // Disable SSL verification (DEVELOPMENT ONLY!)
+            ])->withHeaders([
                 'apikey' => $this->key,
                 'Authorization' => 'Bearer ' . $this->key,
                 'Content-Type' => $file->getClientMimeType(),
+                'x-upsert' => 'true',
             ])->withBody($fileContent, $file->getClientMimeType())
-            ->put("{$this->storageUrl}/{$this->bucket}/{$path}");
+            ->post($uploadUrl);
+
+            Log::info('Upload Response:', [
+                'status' => $response->status(),
+                'headers' => $response->headers(),
+                'body' => $response->body()
+            ]);
 
             if (!$response->successful()) {
-                Log::error('Upload file ke Supabase gagal: ' . $response->body());
-                return false;
+                Log::error('Upload file ke Supabase gagal:', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'headers' => $response->headers()
+                ]);
+                throw new \Exception('HTTP ' . $response->status() . ': ' . $response->body());
             }
 
-            return "{$this->url}/storage/v1/object/public/{$this->bucket}/{$path}";
+            // Return public URL (format lama yang sesuai dengan controller Anda)
+            $publicUrl = "{$this->url}/storage/v1/object/public/{$this->bucket}/{$path}";
+
+            Log::info('File uploaded successfully:', ['url' => $publicUrl]);
+            Log::info('=== UPLOAD FILE DEBUG END ===');
+
+            return $publicUrl; // Return string URL seperti di project lama
+
         } catch (\Exception $e) {
-            Log::error('Exception saat upload file ke Supabase: ' . $e->getMessage());
+            Log::error('=== UPLOAD FILE ERROR ===');
+            Log::error('Exception saat upload file ke Supabase:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return false;
         }
     }
 
-
-
-
-
     public function deleteFile($filePath)
     {
         try {
+            // Jika filePath adalah URL penuh, extract path-nya
+            if (strpos($filePath, 'http') === 0) {
+                $parsedUrl = parse_url($filePath);
+                $pathParts = explode('/object/public/' . $this->bucket . '/', $parsedUrl['path']);
+                $filePath = end($pathParts);
+            }
+
+            Log::info('Deleting file:', ['path' => $filePath]);
+
             $response = $this->storageClient->delete("/object/{$this->bucket}/{$filePath}");
-            return $response->getStatusCode() === 204;
+
+            Log::info('Delete response:', ['status' => $response->getStatusCode()]);
+
+            return $response->getStatusCode() === 200 || $response->getStatusCode() === 204;
         } catch (\Exception $e) {
             Log::error("Supabase deleteFile error: " . $e->getMessage());
             return false;
         }
     }
+
     public function saveSuratMasuk(array $data)
     {
         try {
-            // Tambahkan di sini
-            if (isset($data['file_scan_url'])) {
-                $data['file_scan'] = $data['file_scan_url'];
-                unset($data['file_scan_url']);
-            }
-            Log::error('Data mentah sebelum encoding: ' . json_encode($data, JSON_UNESCAPED_UNICODE));
+            Log::info('Data mentah sebelum encoding:', $data);
 
             // Bersihkan encoding data agar valid UTF-8
             $encodedData = $this->cleanUtf8Recursive($data);
@@ -134,10 +196,18 @@ class SupabaseService
                 ],
             ]);
 
+            Log::info('Supabase save response:', [
+                'status' => $response->getStatusCode(),
+                'body' => $response->getBody()->getContents()
+            ]);
+
             $result = json_decode($response->getBody(), true);
             return $result && count($result) > 0 ? $result[0] : false;
         } catch (\Exception $e) {
-            Log::error("Supabase saveSuratMasuk error: " . $e->getMessage());
+            Log::error("Supabase saveSuratMasuk error:", [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return false;
         }
     }
@@ -152,8 +222,6 @@ class SupabaseService
         }
         return $this->cleanUtf8String($data);
     }
-
-
 
     public function getSuratMasukById($id)
     {
@@ -172,12 +240,10 @@ class SupabaseService
     public function updateSuratMasuk($id, array $data)
     {
         try {
-            Log::error('Data mentah sebelum encoding: ' . json_encode($data, JSON_UNESCAPED_UNICODE));
+            Log::info('Update data:', $data);
 
             // Bersihkan encoding data agar valid UTF-8
-            $encodedData = array_map(function ($value) {
-                return $this->cleanUtf8String($value);
-            }, $data);
+            $encodedData = $this->cleanUtf8Recursive($data);
 
             // Cek json_encode secara manual untuk mendeteksi error encoding
             $jsonTest = json_encode($encodedData, JSON_UNESCAPED_UNICODE);
@@ -215,7 +281,6 @@ class SupabaseService
             return false;
         }
     }
-
 
     public function saveSuratKeluar(array $data)
     {
@@ -255,11 +320,19 @@ class SupabaseService
 
     public function savePenduduk($data)
     {
-        $response = $this->client
-            ->from('penduduk') // nama tabel di Supabase
-            ->insert([$data])
-            ->execute();
+        try {
+            $response = $this->client->post('/rest/v1/penduduk', [
+                'json' => [$data],
+                'headers' => [
+                    'Prefer' => 'return=representation',
+                ],
+            ]);
 
-        return $response['status'] === 201; // atau sesuaikan jika format respon berbeda
+            $result = json_decode($response->getBody(), true);
+            return $result && count($result) > 0;
+        } catch (\Exception $e) {
+            Log::error("Supabase savePenduduk error: " . $e->getMessage());
+            return false;
+        }
     }
 }

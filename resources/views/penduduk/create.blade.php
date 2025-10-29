@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8 mt-12">
+<div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8 mt-12 mb-12">
     <h2 class="text-3xl font-extrabold text-green-800 mb-8 border-b-4 border-green-600 pb-2">Tambah Data Penduduk</h2>
 
     @if ($errors->any())
