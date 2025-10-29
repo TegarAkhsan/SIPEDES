@@ -1,70 +1,145 @@
-<<<<<<< HEAD
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 💌 SI-PEDES — Sistem Persuratan Elektronik Desa Setro
+<img width="1920" height="932" alt="Screenshot (1615)" src="https://github.com/user-attachments/assets/eaa5e600-da9b-41ca-9101-e5b33da22d30" />
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
 
-## About Laravel
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+> **SI-PEDES** (Sistem Persuratan Elektronik Desa Setro) adalah aplikasi berbasis web yang dikembangkan untuk mengelola proses administrasi surat-menyurat secara digital di tingkat desa.  
+> Aplikasi ini dibangun menggunakan **Laravel 11** dan **Tailwind CSS**, dengan tujuan memudahkan perangkat desa dalam pencatatan, pengarsipan, dan pencarian surat secara efisien dan terstruktur.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 🚀 Daftar Isi
+- [Fitur Utama](##-fitur-utama)
+- [Teknologi yang Digunakan](##-teknologi-yang-digunakan)
+- [Struktur Proyek](#-struktur-proyek)
+- [Instalasi dan Konfigurasi](#-instalasi-dan-konfigurasi)
+- [Struktur Database](#-struktur-database)
+- [Alur Sistem](#-alur-sistem)
+- [Panduan Penggunaan](#-panduan-penggunaan)
+- [Kontributor dan Pengembang](#-kontributor-dan-pengembang)
+- [Lisensi](#-lisensi)
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🌟 Fitur Utama
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+| Modul | Deskripsi |
+|-------|------------|
+| **Surat Masuk** | Pencatatan surat masuk beserta informasi kode surat, pengirim, tanggal, dan perihal. Dapat diunggah dalam bentuk file PDF. |
+| **Surat Keluar** | Pencatatan dan pengarsipan surat keluar, dilengkapi dengan nomor surat otomatis dan sistem kode arsip. |
+| **Arsip Surat** | Sistem penyimpanan dan pencarian arsip berdasarkan kategori, tanggal, atau kode surat. |
+| **Data Penduduk** | Integrasi data penduduk untuk kebutuhan surat keterangan, pengantar, dan administrasi lainnya. |
+| **Pencarian Cepat** | Fitur pencarian real-time berbasis AJAX untuk menemukan surat atau arsip dengan cepat. |
+| **Manajemen Pengguna** | Pengaturan akun admin dan operator desa, lengkap dengan otentikasi Laravel Breeze. |
+| **Dashboard Statistik** | Tampilan visual data surat masuk/keluar per bulan menggunakan chart interaktif. |
+| **Desain Responsif** | Dibangun menggunakan Tailwind CSS untuk tampilan yang ringan dan adaptif di berbagai perangkat. |
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## 🧩 Teknologi yang Digunakan
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+| Kategori | Teknologi |
+|-----------|------------|
+| **Backend Framework** | [Laravel 11](https://laravel.com/) |
+| **Frontend Framework** | [Tailwind CSS](https://tailwindcss.com/) |
+| **Autentikasi** | Laravel Breeze |
+| **Database** | MySQL / MariaDB |
+| **Template Engine** | Blade |
+| **JavaScript Library** | Alpine.js & AJAX |
+| **Chart Visualization** | Chart.js / ApexCharts |
+| **Version Control** | Git & GitHub |
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## ⚙️ Instalasi dan Konfigurasi
 
-## Contributing
+### 1️⃣ Persyaratan Sistem
+Pastikan sudah terinstal:
+- PHP >= 8.2
+- Composer
+- Node.js & NPM
+- MySQL / MariaDB
+- Git
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 2️⃣ Clone Repository
+git clone https://github.com/username/sipedes.git
+cd sipedes
 
-## Code of Conduct
+### 3️⃣ Instal Dependensi
+```
+composer install
+npm install
+npm run dev
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 4️⃣ Konfigurasi Environment
+```
+cp .env.example .env
+php artisan key:generate
+```
 
-## Security Vulnerabilities
+Edit bagian database:
+```
+DB_DATABASE=sipedes_db
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 5️⃣ Migrasi dan Seeder
+```
+php artisan migrate --seed
+```
 
-## License
+### 6️⃣ Jalankan Server
+```
+php artisan serve
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-=======
-# SIPEDES
->>>>>>> 3bbac3cc41741ab8de2f27f0689e8ba3a639946c
+🔄 Alur Sistem
+
+1. Admin login → masuk ke dashboard.
+2. Tambah surat masuk/keluar → isi form lengkap + upload file (PDF).
+3. Sistem menyimpan data ke database dan menautkan ke arsip.
+4. Operator dapat mencari surat berdasarkan kata kunci.
+5. Dashboard menampilkan statistik surat masuk dan keluar per periode.
+
+🧭 Panduan Penggunaan
+- 👤 Login
+```
+Email: admin@sipedes.local
+Password: password
+```
+
+📬 Surat Masuk
+- Klik menu Surat Masuk → Tambah Data
+- Isi form lengkap (kode surat, pengirim, perihal, tanggal, lampiran)
+- Klik Simpan
+
+📤 Surat Keluar
+- Klik Surat Keluar → Tambah Surat
+- Pilih Kode Arsip - Keperluan
+- Sistem otomatis memisahkan kode & keperluan saat penyimpanan
+
+🔍 Arsip & Pencarian
+- Gunakan kolom pencarian untuk mencari berdasarkan kata kunci, kode surat, atau tanggal
+- Arsip tersimpan otomatis setiap ada surat masuk/keluar
+
+👨‍💻 Kontributor dan Pengembang
+
+Project Owner & Lead Developer:
+🧑‍💼 Tegar Eka Pambudi El Akhsan
+
+🪪 Lisensi
+
+Proyek ini dilisensikan di bawah MIT License
+.
+Silakan gunakan, modifikasi, dan distribusikan dengan tetap mencantumkan atribusi pengembang asli.
+
+
+PREVIEW
+
+<img width="1920" height="932" alt="Screenshot (1615)" src="https://github.com/user-attachments/assets/45af0cf2-8571-4ef4-9f7c-2181d271ac8d" />
+
+<img width="1920" height="925" alt="Screenshot (1617)" src="https://github.com/user-attachments/assets/6e6d2ea9-7a06-4673-bf26-471ee77effea" />
+
+<img width="1920" height="925" alt="Screenshot (1622)" src="https://github.com/user-attachments/assets/6fadecae-1699-494f-a393-e97b808f3c6c" />
